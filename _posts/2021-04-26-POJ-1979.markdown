@@ -1,0 +1,99 @@
+---
+layout:     post
+title:      "POJ 1979"
+subtitle:   "Red and Black"
+date:       2021-04-26 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - POJ
+    - 深度优先搜索
+---
+
+### Red and Black(Accept rate:51%)
+
+#### Time Limit: 1000MS
+
+#### Memory Limit: 30000K
+
+#### http://poj.org/problem?id=1979
+
+##### 解答思路：
+
+##### 使用深度优先搜索即可
+
+#### 解答代码如下：
+
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;cstring&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#define MAX_W 21</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#define MAX_H 21</span>
+<span style="color: #cdcaa9; font-weight: bold">char</span> <span style="color: #ffffff">map[MAX_H][MAX_W];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//全地图标记</span>
+<span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">used[MAX_H][MAX_W]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">};</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//访问记录，0为未访问，1为访问</span>
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">black_count</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//黑色地砖数量记录</span>
+
+<span style="color: #008800; font-style: italic; background-color: #0f140f">//深度优先搜索</span>
+<span style="color: #cdcaa9; font-weight: bold">void</span> <span style="color: #ff0086; font-weight: bold">dfs</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">Hs,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">Ws,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">H,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">W){</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//越界检测</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((Hs&lt;</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">)||(Hs&gt;H)||(Ws&lt;</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">)||(Ws&gt;W))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">return</span><span style="color: #ffffff">;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//若地图该点未访问则执行，否则跳过</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(!used[Hs][Ws])</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">used[Hs][Ws]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//访问标记更新为已访问</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//为黑砖则执行</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((map[Hs][Ws]</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;.&#39;</span><span style="color: #ffffff">)||(map[Hs][Ws]</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;@&#39;</span><span style="color: #ffffff">))</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">black_count++;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//黑砖记录+1</span>
+            <span style="color: #ffffff">dfs(Hs</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">Ws,</span> <span style="color: #ffffff">H,</span> <span style="color: #ffffff">W);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//往上看看</span>
+            <span style="color: #ffffff">dfs(Hs</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">Ws,</span> <span style="color: #ffffff">H,</span> <span style="color: #ffffff">W);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//往下看看</span>
+            <span style="color: #ffffff">dfs(Hs,</span> <span style="color: #ffffff">Ws</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">H,</span> <span style="color: #ffffff">W);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//往左看看</span>
+            <span style="color: #ffffff">dfs(Hs,</span> <span style="color: #ffffff">Ws</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">H,</span> <span style="color: #ffffff">W);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//往右看看</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span>
+            <span style="color: #fb660a; font-weight: bold">return</span><span style="color: #ffffff">;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">else</span>
+        <span style="color: #fb660a; font-weight: bold">return</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">W,</span> <span style="color: #ffffff">H;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//当前地图宽与高</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">Ws</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">Hs</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//当前位置</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">W</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">H;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输入宽度与高度</span>
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((W</span> <span style="color: #ffffff">!=</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(H</span> <span style="color: #ffffff">!=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//导入地图</span>
+        <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">H;i++)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">W;j++)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #cdcaa9; font-weight: bold">char</span> <span style="color: #ffffff">tmp;</span>
+                <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//字符输入</span>
+                <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">(tmp</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;\n&#39;</span><span style="color: #ffffff">)</span>
+                    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//若为&#39;\n&#39;则跳过</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(tmp</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;@&#39;</span><span style="color: #ffffff">)</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//若为&#39;@&#39;则更新起点</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">Hs</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i;</span>
+                    <span style="color: #ffffff">Ws</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">j;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #ffffff">map[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//将字符导入地图</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">black_count</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//黑砖起始为0</span>
+        <span style="color: #ffffff">memset(used,</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #fb660a; font-weight: bold">sizeof</span><span style="color: #ffffff">(used));</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//地图访问记录清零</span>
+        <span style="color: #ffffff">dfs(Hs,</span> <span style="color: #ffffff">Ws,</span> <span style="color: #ffffff">H,</span> <span style="color: #ffffff">W);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//从起点开始深度搜索</span>
+        <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">black_count</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输出黑砖数</span>
+        <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">W</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">H;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输入宽度与高度，若其一为0则结束</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>
+

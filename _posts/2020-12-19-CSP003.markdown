@@ -1,0 +1,53 @@
+---
+layout:     post
+title:      "2013_12_CSP_3"
+subtitle:   "最大的矩形"
+date:       2020-12-19 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - CSP
+---
+
+
+
+### CSP考试2013.12第三题
+
+#### 最大的矩形
+
+
+![2013_12_3_1.PNG](/CSP/2013_12_3_1.PNG)
+
+![2013_12_3_1.PNG](/CSP/2013_12_3_2.PNG)
+
+#### 解答代码如下：
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;algorithm&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">n;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//矩形的数量</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//存储当前矩形高度</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">n;</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">ans</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//存储直方图最大矩形面积</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">arrays[n];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//存储直方图</span>
+    <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">n;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//读取当前矩形高度</span>
+        <span style="color: #ffffff">arrays[i]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(tmp</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">ans)</span> <span style="color: #ffffff">ans</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//若当前矩形高度大于最大矩形面积则更新</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">hight_min</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span>    <span style="color: #008800; font-style: italic; background-color: #0f140f">//更新连续最大高度</span>
+        <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&gt;=</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j--)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">hight_min</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(hight_min,</span> <span style="color: #ffffff">arrays[j]);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新最大连续高度</span>
+            <span style="color: #ffffff">tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">hight_min</span> <span style="color: #ffffff">*</span> <span style="color: #ffffff">(i</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新最大连续高度对应矩形面积</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(tmp</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">ans)</span> <span style="color: #ffffff">ans</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//若最大高度对应矩形面积大于最大矩形面积则更新最大矩形面积</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">ans</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输出最大矩形面积</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>

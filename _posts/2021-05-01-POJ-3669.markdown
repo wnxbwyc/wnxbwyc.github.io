@@ -1,0 +1,181 @@
+---
+layout:     post
+title:      "POJ 3669"
+subtitle:   "Meteor Shower"
+date:       2021-05-01 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - POJ
+    - 广度优先搜索
+---
+
+### Meteor Shower(Accept rate:25%)
+
+#### Time Limit: 1000MS
+
+#### Memory Limit: 65536K
+
+#### http://poj.org/problem?id=3669
+
+##### 解答思路：
+
+* 很自然地使用广度搜索方法(bfs)。
+
+##### 注意：
+
+* 初始化流星坐标时间时设为1005（最大值100+5），读取流星坐标和时间时更新流星下落时间的最小值，Bessie到达该坐标的时间必须早于该点被轰炸的最早时间。
+* 有个别测试点越界了，地图的最大值设置要稍稍比题目中给出的300要大一点，故而这里设置为305。
+* 使用队列来做广度搜索，另外开辟一个数组与队列分别来存储访问标记与访问过的疑似可行点的坐标与时间信息。
+* 个人的解答耗费时间较长，应该还有更快的办法，这里不继续展开。
+
+##### 解答代码：
+
+* memory:1244K
+
+* time:610ms
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;queue&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#define T_ori 1005</span>
+
+<span style="color: #fb660a; font-weight: bold">struct</span> <span style="color: #ffffff">pos</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">x;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//可行x坐标</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">y;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//可行y坐标</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">t;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//该点最小时间</span>
+<span style="color: #ffffff">};</span>
+
+<span style="color: #ffffff">queue&lt;pos&gt;</span> <span style="color: #ffffff">que_pos,que_pos2;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//前者是待扩张位置队列,后者用来存储稳定位置队列</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">T_used[</span><span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//节点时间使用情况</span>
+<span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">used[</span><span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//访问记录</span>
+
+<span style="color: #cdcaa9; font-weight: bold">void</span> <span style="color: #ff0086; font-weight: bold">bfs</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">t_now,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">times)</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//当前时间为t_now,需进行times次的bfs</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(times</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">return</span><span style="color: #ffffff">;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos.size();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//可行点的个数</span>
+    <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">s;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">pos</span> <span style="color: #ffffff">fro</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos.front();</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//该点未访问过则处理</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(used[fro.x][fro.y]</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #008800; font-style: italic; background-color: #0f140f">//访问记录更新</span>
+            <span style="color: #ffffff">used[fro.x][fro.y]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span>
+            <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果该点当下时间安全</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(t_now</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">T_used[fro.x][fro.y])</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//该点插入稳定点队列</span>
+                <span style="color: #ffffff">que_pos2.push(fro);</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//尝试左移</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((fro.x</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(used[fro.x</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][fro.y]</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span> 
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">pos</span> <span style="color: #ffffff">tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{fro.x</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">fro.y,</span> <span style="color: #ffffff">fro.t</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">};</span>
+                    <span style="color: #ffffff">que_pos.push(tmp);</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//尝试右移</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((fro.x</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">304</span><span style="color: #ffffff">)&amp;&amp;(used[fro.x</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][fro.y]</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">pos</span> <span style="color: #ffffff">tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{fro.x</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">fro.y,</span> <span style="color: #ffffff">fro.t</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">};</span>
+                    <span style="color: #ffffff">que_pos.push(tmp);</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//尝试上移</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(((fro.y</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">304</span><span style="color: #ffffff">)&amp;&amp;used[fro.x][fro.y</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">pos</span> <span style="color: #ffffff">tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{fro.x,</span> <span style="color: #ffffff">fro.y</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">fro.t</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">};</span>
+                    <span style="color: #ffffff">que_pos.push(tmp);</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//尝试下移</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((fro.y</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(used[fro.x][fro.y</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span> 
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">pos</span> <span style="color: #ffffff">tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{fro.x,</span> <span style="color: #ffffff">fro.y</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">fro.t</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">};</span>
+                    <span style="color: #ffffff">que_pos.push(tmp);</span>
+                <span style="color: #ffffff">}</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">que_pos.pop();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//队伍头删除</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">bfs(t_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//当前时间更新+1，需进行times次的bfs</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">last</span><span style="color: #ffffff">()</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//最后一次判断安全并计算最小时间</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos.size();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//可行点的个数</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">min_time</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1005</span><span style="color: #ffffff">;</span>
+    <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">s;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">pos</span> <span style="color: #ffffff">fro</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos.front();</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//该点未被破坏则计算最小时间</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(T_used[fro.x][fro.y]</span> <span style="color: #ffffff">==</span> <span style="color: #ffffff">T_ori)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">min_time</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(min_time,</span> <span style="color: #ffffff">fro.t);</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">que_pos.pop();</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos2.size();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//稳定点的个数</span>
+    <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">s;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">pos</span> <span style="color: #ffffff">fro</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">que_pos2.front();</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//该点未被破坏则计算最小时间</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(T_used[fro.x][fro.y]</span> <span style="color: #ffffff">==</span> <span style="color: #ffffff">T_ori)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">min_time</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(min_time,</span> <span style="color: #ffffff">fro.t);</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">que_pos2.pop();</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">min_time;</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">M;</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//流星个数</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">M;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//流星个数输入</span>
+        
+    <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">305</span><span style="color: #ffffff">;j++)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">T_used[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">T_ori;</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//流星轰炸时间初始化</span>
+            <span style="color: #ffffff">used[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>       <span style="color: #008800; font-style: italic; background-color: #0f140f">//节点访问状态初始化</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">x,</span> <span style="color: #ffffff">y,</span> <span style="color: #ffffff">t;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//流星坐标与时间</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #cdcaa9; font-weight: bold">max_t</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//最大可能移动时间</span>
+    <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">M;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">x</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">y</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">t;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//流星坐标与时间</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//流星到达中心摧毁</span>
+        <span style="color: #ffffff">T_used[x][y]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(t,</span> <span style="color: #ffffff">T_used[x][y]);</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//左边摧毁</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(x</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_used[x</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][y]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(t,</span> <span style="color: #ffffff">T_used[x</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][y]);</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//右边摧毁</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(x</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">304</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_used[x</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][y]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(t,</span> <span style="color: #ffffff">T_used[x</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][y]);</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//上边摧毁</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(y</span> <span style="color: #ffffff">&lt;</span> <span style="color: #0086f7; font-weight: bold">304</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_used[x][y</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(t,</span> <span style="color: #ffffff">T_used[x][y</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]);</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//下边摧毁</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(y</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_used[x][y</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(t,</span> <span style="color: #ffffff">T_used[x][y</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]);</span>
+        <span style="color: #cdcaa9; font-weight: bold">max_t</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">max(</span><span style="color: #cdcaa9; font-weight: bold">max_t</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">t);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新最大可能移动时间</span>
+    <span style="color: #ffffff">}</span>
+    
+    <span style="color: #ffffff">pos</span> <span style="color: #ffffff">pos_tmp</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">};</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//初始坐标</span>
+    <span style="color: #ffffff">que_pos.push(pos_tmp);</span>
+    <span style="color: #ffffff">bfs(</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #cdcaa9; font-weight: bold">max_t</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//广度搜索</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">time</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">last();</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(time</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #0086f7; font-weight: bold">1000</span><span style="color: #ffffff">)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">time</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">else</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>
+

@@ -1,0 +1,218 @@
+---
+layout:     post
+title:      "POJ 3009"
+subtitle:   "Curling 2.0"
+date:       2021-04-30 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - POJ
+    - 深度优先搜索
+---
+
+### Curling 2.0(Accept rate:40%)
+
+#### Time Limit: 1000MS
+
+#### Memory Limit: 65536K
+
+#### http://poj.org/problem?id=3009
+
+##### 解答思路：
+
+###### 使用深度优先搜索。
+
+###### 有几个要注意的地方：
+
+* 对应方向有方块(block)是不能向那个方向移动的。
+* 如果当前位置与目标位置共线，如果能往那个方向移动（满足1），则一直向着那个方向即可。其结果是当前最优的。
+* 与方块相撞时位置应该在方块前面一格。如果某个方向一直都没有方块，就删去该分支。
+* 当移动次数超过10，就没有必要再展开分支了（题目说了大于10则输出-1），删去分支可以节省运行时间。
+* 由于频繁地读取地图信息，使用全局变量来存储地图是最好的。
+
+#### 解答代码如下：
+
+##### memory: 192K
+
+##### time: 172ms
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">w,</span> <span style="color: #ffffff">h;</span>               <span style="color: #008800; font-style: italic; background-color: #0f140f">//2&lt;=w&lt;=20,1&lt;=h&lt;=20</span>
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">w_s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">h_s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//起始坐标start</span>
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">w_g</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">h_g</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//目标坐标goal</span>
+<span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">map[</span><span style="color: #0086f7; font-weight: bold">21</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">21</span><span style="color: #ffffff">];</span>      <span style="color: #008800; font-style: italic; background-color: #0f140f">//地图</span>
+
+<span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ff0086; font-weight: bold">dfs</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">map[][</span><span style="color: #0086f7; font-weight: bold">21</span><span style="color: #ffffff">],</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">w_now,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">h_now,</span> <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">times)</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//超过10次退出</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(times</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">10</span><span style="color: #ffffff">)</span>
+        <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">20</span><span style="color: #ffffff">;</span>
+    
+    <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">time_now</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">20</span><span style="color: #ffffff">;</span>
+
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//若当前位置与目标同列,则尝试直接向目标迈进</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(w_now</span> <span style="color: #ffffff">==</span> <span style="color: #ffffff">w_g)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果向上可以到达终点</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((h_now</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">h_g)&amp;&amp;(h_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[h_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][w_now]))</span>
+        <span style="color: #ffffff">{</span>
+                <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">counts</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//至少需要移动一次,每有一个方块阻碍则额外+1次</span>
+                <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">h_now</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">h_g;i++)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(map[h_now</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">i][w_now])</span>
+                        <span style="color: #ffffff">counts++;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">counts;</span>
+        <span style="color: #ffffff">}</span>
+
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果向下可以到达终点</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((h_now</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">h_g)&amp;&amp;(h_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">h)&amp;&amp;(!map[h_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][w_now]))</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//如果沿这个方向可以到达终点</span>
+        <span style="color: #ffffff">{</span>
+                <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">counts</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//至少需要移动一次,每有一个方块阻碍则额外+1次</span>
+                <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">h_g</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">h_now;i++)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(map[h_now</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">i][w_now])</span>
+                        <span style="color: #ffffff">counts++;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">counts;</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//当前位置与目标同行，则尝试直接向目标迈进</span>
+    <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(h_now</span> <span style="color: #ffffff">==</span> <span style="color: #ffffff">h_g)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果左移可以到达终点</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((w_now</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">w_g)&amp;&amp;(w_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[h_now][w_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]))</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">counts</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//至少需要移动一次,每有一个方块阻碍则额外+1次</span>
+                <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">w_now</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">w_g;j++)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(map[h_now][w_now</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">j])</span>
+                        <span style="color: #ffffff">counts++;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">counts;</span>
+            <span style="color: #ffffff">}</span>
+
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果右移可以到达终点</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((w_now</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">w_g)&amp;&amp;(w_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">w)&amp;&amp;(!map[h_now][w_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]))</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">counts</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//至少需要移动一次,每有一个方块阻碍则额外+1次</span>
+                <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">w_g</span> <span style="color: #ffffff">-</span> <span style="color: #ffffff">w_now;j++)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(map[h_now][w_now</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">j])</span>
+                        <span style="color: #ffffff">counts++;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #ffffff">counts;</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//上移</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((h_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[h_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][w_now]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//正常沿这个方向移动，碰到砖块后停下</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">up</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">h_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span>
+        <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((up</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[up][w_now]))</span>
+            <span style="color: #ffffff">up--;</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((up</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(map[up][w_now]))</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">map[up][w_now]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块消失</span>
+            <span style="color: #ffffff">time_now</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(time_now,</span> <span style="color: #ffffff">dfs(map,</span> <span style="color: #ffffff">w_now,</span> <span style="color: #ffffff">up</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,times</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">));</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新位置</span>
+            <span style="color: #ffffff">map[up][w_now]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块复原</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//下移</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((h_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">h)&amp;&amp;(!map[h_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">][w_now]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//正常沿这个方向移动，碰到砖块后停下</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">down</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">h_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span>
+        <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((down</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">h)&amp;&amp;(!map[down][w_now]))</span>
+            <span style="color: #ffffff">down++;</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((down</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">h)&amp;&amp;(map[down][w_now]))</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">map[down][w_now]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块消失</span>
+            <span style="color: #ffffff">time_now</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(time_now,</span> <span style="color: #ffffff">dfs(map,</span> <span style="color: #ffffff">w_now,</span> <span style="color: #ffffff">down</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">));</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//更新位置</span>
+            <span style="color: #ffffff">map[down][w_now]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块复原</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//左移</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((w_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[h_now][w_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//正常沿这个方向移动，碰到砖块后停下</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">left</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">w_now</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span>
+        <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((left</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(!map[h_now][left]))</span>
+            <span style="color: #ffffff">left--;</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((left</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(map[h_now][left]))</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">map[h_now][left]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块消失</span>
+            <span style="color: #ffffff">time_now</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(time_now,</span> <span style="color: #ffffff">dfs(map,</span> <span style="color: #ffffff">left</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">h_now,</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">));</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新位置</span>
+            <span style="color: #ffffff">map[h_now][left]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块复原</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//右移</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((w_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">w)&amp;&amp;(!map[h_now][w_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//正常沿这个方向移动，碰到砖块后停下</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">right</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">w_now</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">;</span>
+        <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((right</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">w)&amp;&amp;(!map[h_now][right]))</span>
+            <span style="color: #ffffff">right++;</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((right</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">w)&amp;&amp;(map[h_now][right]))</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">map[h_now][right]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块消失</span>
+            <span style="color: #ffffff">time_now</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">min(time_now,</span> <span style="color: #ffffff">dfs(map,</span> <span style="color: #ffffff">right</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">h_now,</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">));</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//更新位置</span>
+            <span style="color: #ffffff">map[h_now][right]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//砖块复原</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">time_now;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输出当前最小次数</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">tmp;</span> <span style="color: #008800; font-style: italic; background-color: #0f140f">//临时变量</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">w</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">h;</span>
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">((w!=</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(h!=</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #cdcaa9; font-weight: bold">short</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+        <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">h;i++)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">for</span> <span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">&lt;=</span> <span style="color: #ffffff">w;j++)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">tmp;</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//起点处理</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(tmp==</span><span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">w_s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">j;</span>
+                    <span style="color: #ffffff">h_s</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i;</span>
+                    <span style="color: #ffffff">map[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//终点处理</span>
+                <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(tmp==</span><span style="color: #0086f7; font-weight: bold">3</span><span style="color: #ffffff">)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">w_g</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">j;</span>
+                    <span style="color: #ffffff">h_g</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i;</span>
+                    <span style="color: #ffffff">map[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//其他点处理</span>
+                <span style="color: #fb660a; font-weight: bold">else</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">map[i][j]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">tmp;</span>
+                <span style="color: #ffffff">}</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//开始深度搜索</span>
+        <span style="color: #ffffff">times</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">dfs(map,</span> <span style="color: #ffffff">w_s,</span> <span style="color: #ffffff">h_s,</span> <span style="color: #ffffff">times);</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(times</span> <span style="color: #ffffff">&gt;</span> <span style="color: #0086f7; font-weight: bold">10</span><span style="color: #ffffff">)</span>
+            <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">-</span><span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+        <span style="color: #fb660a; font-weight: bold">else</span>
+            <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">times</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+        <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">w</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">h;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>

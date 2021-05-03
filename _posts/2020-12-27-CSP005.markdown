@@ -1,0 +1,194 @@
+---
+layout:     post
+title:      "2013_12_CSP_5"
+subtitle:   "I’m stuck!"
+date:       2020-12-27 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - CSP
+---
+
+
+
+### CSP考试2013.12第五题
+
+#### I’m stuck!
+
+![2013_12_5.PNG](/CSP/2013_12_5.PNG)
+
+#### 解答代码如下：
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include&lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include&lt;queue&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include&lt;cstdio&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+<span style="color: #fb660a; font-weight: bold">struct</span> <span style="color: #ffffff">pos</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//位置坐标</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">R;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//行数</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//列数</span>
+<span style="color: #ffffff">}tmp,tmp2;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//临时坐标1,临时坐标2</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">R,</span> <span style="color: #ffffff">C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//地图的行数与列数</span>
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">S_R,</span> <span style="color: #ffffff">S_C,</span> <span style="color: #ffffff">T_R,</span> <span style="color: #ffffff">T_C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//存储初始位置坐标与目标位置坐标</span>
+<span style="color: #cdcaa9; font-weight: bold">bool</span> <span style="color: #ffffff">task1_use[</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{false};</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//满足性质1即初始坐标能到达的点</span>
+<span style="color: #cdcaa9; font-weight: bold">bool</span> <span style="color: #ffffff">task2_use[</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">{false};</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//探测能到达T点的点,性质2相反</span>
+<span style="color: #cdcaa9; font-weight: bold">char</span> <span style="color: #ffffff">maps[</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">][</span><span style="color: #0086f7; font-weight: bold">50</span><span style="color: #ffffff">];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//地图存储位置</span>
+<span style="color: #ffffff">queue&lt;pos&gt;</span> <span style="color: #ffffff">queues;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//坐标队列</span>
+
+<span style="color: #cdcaa9; font-weight: bold">bool</span> <span style="color: #ff0086; font-weight: bold">bounds</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">R_in,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">C_in)</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//探测是否越界,若不越界输出true</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((R_in</span> <span style="color: #ffffff">&gt;=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(R_in</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">R)&amp;&amp;(C_in</span> <span style="color: #ffffff">&gt;=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)&amp;&amp;(C_in</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">C))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">true;</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">false;</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">void</span> <span style="color: #ff0086; font-weight: bold">task1_deal</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">R_in,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">C_in)</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果不越界且不为#且未抵达过则运行</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(bounds(R_in,</span> <span style="color: #ffffff">C_in)&amp;&amp;(maps[R_in][C_in]</span> <span style="color: #ffffff">!=</span> <span style="color: #0086d2">&#39;#&#39;</span><span style="color: #ffffff">)&amp;&amp;(!task1_use[R_in][C_in]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">task1_use[R_in][C_in]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//设置该点已抵达</span>
+        <span style="color: #ffffff">tmp.R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">R_in,</span> <span style="color: #ffffff">tmp.C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">C_in;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//临时变量存储坐标</span>
+        <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//插入该坐标点</span>
+    <span style="color: #ffffff">}</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">bool</span> <span style="color: #ff0086; font-weight: bold">BFS_S</span><span style="color: #ffffff">()</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//由S点开始遍历</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">bool</span> <span style="color: #ffffff">T_flag</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">false;</span>
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">(!queues.empty())</span> <span style="color: #ffffff">queues.pop();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//队列初始化</span>
+    <span style="color: #ffffff">tmp.R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">S_R,</span> <span style="color: #ffffff">tmp.C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">S_C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//赋予临时变量S坐标</span>
+    <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//S坐标进队列</span>
+    <span style="color: #ffffff">task1_use[tmp.R][tmp.C]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//标记初始坐标可到达</span>
+
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">(!queues.empty())</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">tmp2</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">queues.front();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//获取队列头部坐标</span>
+        <span style="color: #ffffff">queues.pop();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//弹出队列头部</span>
+        <span style="color: #cdcaa9; font-weight: bold">char</span> <span style="color: #ffffff">c</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">maps[tmp2.R][tmp2.C];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//读入对应字符</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;T&#39;</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_flag</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//已到达目标则设置flag为true</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">!=</span> <span style="color: #0086d2">&#39;#&#39;</span><span style="color: #ffffff">)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;S&#39;</span><span style="color: #ffffff">)||(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;T&#39;</span><span style="color: #ffffff">)||(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;+&#39;</span><span style="color: #ffffff">))</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//上</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//下</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//左</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//右</span>
+            <span style="color: #ffffff">}</span>
+            <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;-&#39;</span><span style="color: #ffffff">)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//左</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//右</span>
+            <span style="color: #ffffff">}</span>
+            <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;|&#39;</span><span style="color: #ffffff">)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//上</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//下</span>
+            <span style="color: #ffffff">}</span>
+            <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;.&#39;</span><span style="color: #ffffff">)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task1_deal(tmp2.R</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//下</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #ffffff">T_flag;</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #008800; font-style: italic; background-color: #0f140f">//判断该点是否可以到达目标坐标,type:该点在上个点的方位,0上1下2左3右</span>
+<span style="color: #cdcaa9; font-weight: bold">void</span> <span style="color: #ff0086; font-weight: bold">task2_deal</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">R_in,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">C_in,</span> <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">type)</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #ffffff">tmp.R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">R_in,</span> <span style="color: #ffffff">tmp.C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">C_in;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//临时变量存储坐标</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//如果不越界且不为#且目前不能确定能否到达目标坐标则运行</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(bounds(R_in,</span> <span style="color: #ffffff">C_in)&amp;&amp;(maps[R_in][C_in]!=</span><span style="color: #0086d2">&#39;#&#39;</span><span style="color: #ffffff">)&amp;&amp;(!task2_use[R_in][C_in]))</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #cdcaa9; font-weight: bold">char</span> <span style="color: #ffffff">c</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">maps[R_in][C_in];</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//读入对应字符</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;S&#39;</span><span style="color: #ffffff">)||(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;T&#39;</span><span style="color: #ffffff">)||(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;+&#39;</span><span style="color: #ffffff">))</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//若为此三者必能到达T点</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">task2_use[R_in][C_in]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span>
+            <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//插入该坐标点</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;-&#39;</span><span style="color: #ffffff">)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((type</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">)||(type</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">3</span><span style="color: #ffffff">))</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//左右</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task2_use[R_in][C_in]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span>
+                <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//插入该坐标点</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;|&#39;</span><span style="color: #ffffff">)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((type</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)||(type</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">))</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//上下</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task2_use[R_in][C_in]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span>
+                <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//插入该坐标点</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(c</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;.&#39;</span><span style="color: #ffffff">)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(type</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">)</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//该点需在上个点的上方</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">task2_use[R_in][C_in]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span>
+                <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//插入该坐标点</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+<span style="color: #ffffff">}</span>
+
+
+<span style="color: #cdcaa9; font-weight: bold">void</span> <span style="color: #ff0086; font-weight: bold">BFS_T</span><span style="color: #ffffff">()</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//由T点开始遍历,探测能到达T点的点</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #ffffff">tmp.R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">T_R,</span> <span style="color: #ffffff">tmp.C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">T_C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//赋予临时变量T坐标</span>
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">(!queues.empty())</span> <span style="color: #ffffff">queues.pop();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//队列初始化</span>
+    <span style="color: #ffffff">queues.push(tmp);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//S坐标进队列</span>
+    <span style="color: #ffffff">task2_use[tmp.R][tmp.C]</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">true;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//标记目标坐标即是T点,肯定可以到达T点</span>
+    <span style="color: #fb660a; font-weight: bold">while</span><span style="color: #ffffff">(!queues.empty())</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">tmp2</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">queues.front();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//获取队列头部坐标</span>
+        <span style="color: #ffffff">queues.pop();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//弹出队列头部</span>
+        <span style="color: #ffffff">task2_deal(tmp2.R</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C,</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//上</span>
+        <span style="color: #ffffff">task2_deal(tmp2.R</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">tmp2.C,</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//下</span>
+        <span style="color: #ffffff">task2_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">-</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #0086f7; font-weight: bold">2</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//左</span>
+        <span style="color: #ffffff">task2_deal(tmp2.R,</span> <span style="color: #ffffff">tmp2.C</span> <span style="color: #ffffff">+</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,</span> <span style="color: #0086f7; font-weight: bold">3</span><span style="color: #ffffff">);</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//右</span>
+    <span style="color: #ffffff">}</span>
+<span style="color: #ffffff">}</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">R</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">C;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//读入地图的行数与列数</span>
+    <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">R;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;j</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">C;j++)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">maps[i][j];</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(maps[i][j]</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;S&#39;</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">S_R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i,S_C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">j;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//导入S坐标</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(maps[i][j]</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;T&#39;</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">T_R</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">i,T_C</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">j;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//导入T坐标</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">getchar();</span>
+    <span style="color: #ffffff">}</span>
+
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(BFS_S())</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//寻找初始坐标是否到达目标点</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">BFS_T();</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//寻找目标可到达点</span>
+        <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">task_sum</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//满足性质1与2的点的个数</span>
+        <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;i</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">R;i++)</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">j</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;j</span> <span style="color: #ffffff">&lt;</span> <span style="color: #ffffff">C;j++)</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">((task1_use[i][j])&amp;&amp;(!task2_use[i][j]))</span> <span style="color: #ffffff">task_sum++;</span>
+                <span style="color: #008800; font-style: italic; background-color: #0f140f">//满足任务1而不满足任务2的点就是要求的目标</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">task_sum</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输出满足性质1与2的点的个数</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #0086d2">&quot;I&#39;m stuck!&quot;</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>
+
+

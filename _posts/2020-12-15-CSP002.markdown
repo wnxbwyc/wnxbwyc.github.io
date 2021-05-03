@@ -1,0 +1,60 @@
+---
+layout:     post
+title:      "2013_12_CSP_2"
+subtitle:   "ISBN号码"
+date:       2020-12-15 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - CSP
+---
+
+
+
+### CSP考试2013.12第二题
+
+#### ISBN号码
+
+
+![2013_12_2.PNG](/CSP/2013_12_2.PNG)
+
+#### 解答代码如下：
+
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;string&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #ffffff">string</span> <span style="color: #ffffff">s;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//读入ISBN</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">s;</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">sum</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">,</span> <span style="color: #ffffff">num</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//ISBN识别码总和, ISBN迭代的数字序数</span>
+    <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(string::iterator</span> <span style="color: #ffffff">it</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">s.begin();it!=s.end();it++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(*it</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;-&#39;</span><span style="color: #ffffff">)</span> <span style="color: #fb660a; font-weight: bold">continue</span><span style="color: #ffffff">;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//非数字则跳过</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(num</span> <span style="color: #ffffff">!=</span> <span style="color: #0086f7; font-weight: bold">10</span><span style="color: #ffffff">)</span>  <span style="color: #008800; font-style: italic; background-color: #0f140f">//非最后一位求识别码总和</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #ffffff">sum</span> <span style="color: #ffffff">+=</span> <span style="color: #ffffff">num</span> <span style="color: #ffffff">*</span> <span style="color: #ffffff">(*it</span> <span style="color: #ffffff">-</span> <span style="color: #0086d2">&#39;0&#39;</span><span style="color: #ffffff">);</span>
+            <span style="color: #ffffff">num</span> <span style="color: #ffffff">++;</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span>  <span style="color: #008800; font-style: italic; background-color: #0f140f">//对11取模求识别码,正确输出Right,错误则更正</span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(sum</span> <span style="color: #ffffff">%</span> <span style="color: #0086f7; font-weight: bold">11</span> <span style="color: #ffffff">==</span> <span style="color: #ffffff">((*it</span> <span style="color: #ffffff">==</span> <span style="color: #0086d2">&#39;X&#39;</span><span style="color: #ffffff">)?</span> <span style="color: #0086f7; font-weight: bold">10</span> <span style="color: #ffffff">:</span> <span style="color: #ffffff">*it</span> <span style="color: #ffffff">-</span> <span style="color: #0086d2">&#39;0&#39;</span><span style="color: #ffffff">))</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #0086d2">&quot;Right&quot;</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+            <span style="color: #ffffff">}</span>
+            <span style="color: #fb660a; font-weight: bold">else</span>
+            <span style="color: #ffffff">{</span>
+                <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i&lt;</span> <span style="color: #ffffff">s.size()-</span><span style="color: #0086f7; font-weight: bold">1</span> <span style="color: #ffffff">;i++)</span>
+                <span style="color: #ffffff">{</span>
+                    <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">s[i];</span>
+                <span style="color: #ffffff">}</span>
+                <span style="color: #ffffff">(sum</span> <span style="color: #ffffff">%</span> <span style="color: #0086f7; font-weight: bold">11</span> <span style="color: #ffffff">==</span> <span style="color: #0086f7; font-weight: bold">10</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">?</span> <span style="color: #ffffff">(cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #0086d2">&#39;X&#39;</span><span style="color: #ffffff">)</span> <span style="color: #ffffff">:</span> <span style="color: #ffffff">(cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">(sum</span> <span style="color: #ffffff">%</span> <span style="color: #0086f7; font-weight: bold">11</span><span style="color: #ffffff">))</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">endl;</span>
+            <span style="color: #ffffff">}</span>
+        <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>

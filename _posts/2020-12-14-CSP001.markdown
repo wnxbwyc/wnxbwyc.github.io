@@ -1,0 +1,61 @@
+---
+layout:     post
+title:      "2013_12_CSP_1"
+subtitle:   "出现次数最多的数"
+date:       2020-12-14 18:00:00
+author:     "clever"
+header-img: "img/post-bg-2020_1.jpg"
+catalog: true
+tags:
+    - CSP
+---
+
+
+
+### CSP考试2013.12第一题
+
+#### 出现最多次数的数
+
+
+![2013_12_1.PNG](/CSP/2013_12_1.PNG)
+
+#### 解答代码如下：
+
+
+
+<div class="highlight" style="background: #111111"><pre style="line-height: 125%"><span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;iostream&gt;</span>
+<span style="color: #ff0007; font-weight: bold; font-style: italic; background-color: #0f140f">#include &lt;algorithm&gt;</span>
+<span style="color: #fb660a; font-weight: bold">using</span> <span style="color: #fb660a; font-weight: bold">namespace</span> <span style="color: #ffffff">std;</span>
+
+<span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ff0086; font-weight: bold">main</span><span style="color: #ffffff">()</span>
+<span style="color: #ffffff">{</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">n;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输入的个数</span>
+    <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">n;</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">s[n];</span>  <span style="color: #008800; font-style: italic; background-color: #0f140f">//存放输入的数组</span>
+    <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i=</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span> <span style="color: #ffffff">i&lt;n;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #ffffff">cin</span> <span style="color: #ffffff">&gt;&gt;</span> <span style="color: #ffffff">s[i];</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #ffffff">sort(s,</span> <span style="color: #ffffff">s+n);</span>  <span style="color: #008800; font-style: italic; background-color: #0f140f">//升序排序</span>
+    <span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">num</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">s[</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">],num_times=</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,max_times=</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">,max_num</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">s[</span><span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">];</span>
+    <span style="color: #008800; font-style: italic; background-color: #0f140f">//当前整数与当前整数出现的次数; 出现次数最大的整数与其出现次数</span>
+    <span style="color: #fb660a; font-weight: bold">for</span><span style="color: #ffffff">(</span><span style="color: #cdcaa9; font-weight: bold">int</span> <span style="color: #ffffff">i=</span><span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;i&lt;n;i++)</span>
+    <span style="color: #ffffff">{</span>
+        <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(s[i]!=num)</span>  
+        <span style="color: #008800; font-style: italic; background-color: #0f140f">//若新整数出现，刷新整数次数为1;若旧整数出现次数大于目前出现次数最大的整数，更新出现次数最多的整数与其出现次数  </span>
+        <span style="color: #ffffff">{</span>
+            <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(num_times</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">max_times)</span> <span style="color: #ffffff">max_num</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">num,max_times</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">num_times;</span>
+            <span style="color: #ffffff">num</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">s[i];</span>
+            <span style="color: #ffffff">num_times</span> <span style="color: #ffffff">=</span> <span style="color: #0086f7; font-weight: bold">1</span><span style="color: #ffffff">;</span>
+        <span style="color: #ffffff">}</span>
+        <span style="color: #fb660a; font-weight: bold">else</span> <span style="color: #ffffff">num_times++;</span>  <span style="color: #008800; font-style: italic; background-color: #0f140f">//否则旧整数次数+1</span>
+    <span style="color: #ffffff">}</span>
+    <span style="color: #fb660a; font-weight: bold">if</span><span style="color: #ffffff">(num_times</span> <span style="color: #ffffff">&gt;</span> <span style="color: #ffffff">max_times)</span> <span style="color: #ffffff">max_num</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">num,max_times</span> <span style="color: #ffffff">=</span> <span style="color: #ffffff">num_times;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//处理最后一次更新</span>
+    <span style="color: #ffffff">cout</span> <span style="color: #ffffff">&lt;&lt;</span> <span style="color: #ffffff">max_num;</span><span style="color: #008800; font-style: italic; background-color: #0f140f">//输出出现次数最大的整数</span>
+    <span style="color: #fb660a; font-weight: bold">return</span> <span style="color: #0086f7; font-weight: bold">0</span><span style="color: #ffffff">;</span>
+<span style="color: #ffffff">}</span>
+</pre></div>
+
+
+
+
