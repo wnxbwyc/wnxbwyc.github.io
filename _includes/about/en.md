@@ -6,7 +6,7 @@ My research interests include computer vision and super-resolution.
 
 ##### News
 
-- I am the 10th of Quality enhancement of heavily compressed videos: Track 1 Fixed QP, Fidelity in NTIRE 2021 video/multi-frame challenges[Official page](https://github.com/RenYang-home/NTIRE21_VEnh).
+- I am the 10th of Quality enhancement of heavily compressed videos: Track 1 Fixed QP, Fidelity in NTIRE 2021 video/multi-frame challenges. [[Official page](https://github.com/RenYang-home/NTIRE21_VEnh)].
 
 
 
