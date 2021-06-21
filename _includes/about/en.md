@@ -1,6 +1,6 @@
 Hi! I’m Yucong Wang, a master student at College of Computer Science and Electronic Engineering, Hunan University, under the supervision of [Prof. Minjie Cai](https://cai-mj.github.io/). 
 
-In 2019, I received my bachelor's degree in college of electronics and information at Shenzhen University and started studying career in Hunan University.
+In 2019, I received my bachelor's degree in College of Electronics and Information Engineering at Shenzhen University and started studying career in Hunan University.
 
 My research interests include computer vision and super-resolution.
 
